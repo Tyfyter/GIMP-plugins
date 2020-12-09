@@ -80,7 +80,7 @@ def enum_discolor(image, drawable, expression, alpha) :
 					xyz = rgb_to_xyz(pixel)
 					Lab = xyz_to_lab(xyz)
 					LCh = lab_to_lch(Lab)
-					context = {'r': pixel[0], 'g': pixel[1], 'b': pixel[2], 'a': pixel[3], 'X': xyz[0], 'Y': xyz[1], 'Z': xyz[2] , 'L': Lab[0], 'a': Lab[1], 'b': Lab[2], 'C': LCh[1], 'h': LCh[2]}
+					context = {'x': x, 'y': y, 'r': pixel[0], 'g': pixel[1], 'b': pixel[2], 'a': pixel[3], 'X': xyz[0], 'Y': xyz[1], 'Z': xyz[2] , 'L': Lab[0], 'a': Lab[1], 'b': Lab[2], 'C': LCh[1], 'h': LCh[2]}
 					if(alpha):
 						newColor = eval(expression, None, context)
 						layer.set_pixel(x,y, truncate_float4(newColor))
@@ -90,7 +90,8 @@ def enum_discolor(image, drawable, expression, alpha) :
 		
 		# Update the layer.
 		layer.update(0, 0, layer.width, layer.height)
-		pdb.gimp_image_insert_layer(image, layer, None, 0)
+		pdb.gimp_image_insert_layer(image, layer, None, pdb.gimp_image_get_item_position(image,drawable))
+		pdb.gimp_image_merge_down(image, layer, 0)
 
 	except Exception as err:
 		exc_type, exc_obj, tb = sys.exc_info()
@@ -256,11 +257,29 @@ def abs(v):
 register(
 	"enum-discolor",
 	"Enum Discolor",
-	"Converts a layer to gray scale. Note that this implementation is very inefficient, since it do not make use of tiles. It also has a bug which damages the undo funcionality",
-	"JFM",
-	"Open source (BSD 3-clause license)",
-	"2013",
-	"<Toolbox>/Xtns/Test/Enum Discolor",
+	"",
+	"",
+	"",
+	"",
+	"<Toolbox>/Colors/Enum Discolor",
+	"RGB, RGB*",
+	[
+	(PF_IMAGE, "img", "Input Image", None),
+	(PF_DRAWABLE, "drawable", "Input Layer", None),
+	(PF_STRING, "expression", "Expression", ""),
+	(PF_BOOL, "alpha", "Include alpha", false)
+	],
+	[],
+	enum_discolor)
+	
+register(
+	"enum-discolor",
+	"Enum Discolor",
+	"",
+	"",
+	"",
+	"",
+	"<Toolbox>/Xtns/Enum Discolor",
 	"RGB, RGB*",
 	[
 	(PF_IMAGE, "img", "Input Image", None),
