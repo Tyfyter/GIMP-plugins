@@ -45,6 +45,7 @@ from gimpfu import *
 #from math import *
 false = False
 true = True
+context = {}
 
 def enum_discolor(image, drawable, expression, alpha) :
 	''' Converts a layer to gray scale, without modifying his type (RGB or RGBA).
@@ -80,6 +81,7 @@ def enum_discolor(image, drawable, expression, alpha) :
 					xyz = rgb_to_xyz(pixel)
 					LAB = xyz_to_lab(xyz)
 					LCh = lab_to_lch(LAB)
+					global context
 					context = {'x': x, 'y': y, 'r': pixel[0], 'g': pixel[1], 'b': pixel[2], 'a': pixel[3], 'X': xyz[0], 'Y': xyz[1], 'Z': xyz[2] , 'L': LAB[0], 'A': LAB[1], 'B': LAB[2], 'C': LCh[1], 'h': LCh[2], 'width': layer.width, 'height': layer.height}
 					if(alpha):
 						newColor = eval(expression, None, context)
@@ -254,11 +256,16 @@ def abs(v):
 	if(v < 0) :
 		return -v
 	return v
-	
+
 def tern(condition, a, b):
 	if(condition) :
 		return a
 	return b
+
+def stern(condition, a, b):
+	if(condition) :
+		return eval(str(a), None, context)
+	return eval(str(b), None, context)
 
 register(
 	"enum-discolor",
