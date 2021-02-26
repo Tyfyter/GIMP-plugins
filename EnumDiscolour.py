@@ -24,7 +24,8 @@ def enum_discolor(image, drawable, expression, alpha) :
 	pdb.gimp_image_undo_group_start(image)
 	
 	layer = pdb.gimp_layer_copy(drawable, false)
-	
+	pdb.gimp_image_insert_layer(image, layer, None, pdb.gimp_image_get_item_position(image,drawable))
+	pdb.gimp_drawable_edit_clear(layer)
 	newColor = (255,255,255,0)
 	# Iterate over all the pixels
 	try:
@@ -33,7 +34,7 @@ def enum_discolor(image, drawable, expression, alpha) :
 
 			for y in range(layer.height):
 				# Get the pixel and verify that is an RGB value.
-				pixel = layer.get_pixel(x,y)
+				pixel = drawable.get_pixel(x,y)
 			
 				if(len(pixel) >= 3):
 					xyz = rgb_to_xyz(pixel)
@@ -50,9 +51,9 @@ def enum_discolor(image, drawable, expression, alpha) :
 		
 		# Update the layer.
 		layer.update(0, 0, layer.width, layer.height)
-		pdb.gimp_image_insert_layer(image, layer, None, pdb.gimp_image_get_item_position(image,drawable))
-		pdb.gimp_drawable_edit_clear(drawable)
-		pdb.gimp_image_merge_down(image, layer, 0)
+		# pdb.gimp_image_insert_layer(image, layer, None, pdb.gimp_image_get_item_position(image,drawable))
+		# pdb.gimp_drawable_edit_clear(drawable)
+		# pdb.gimp_image_merge_down(image, layer, 0)
 
 	except Exception as err:
 		exc_type, exc_obj, tb = sys.exc_info()
