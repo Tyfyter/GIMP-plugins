@@ -1,8 +1,13 @@
-gameboy color shader:
+gameboy palette shader:
 lch_to_rgb((L,50,300-(L*2)))
+
+riven palette shader:
+lch_to_rgb((L,50,-90+(L*2)))
 
 felnum crystal:
 lch_to_rgb((((L/100)**1.25)*100,50,325-(L*1.5)))
 
 felnum lighting:
 lch_to_rgb((L,30-C,230)) + (a*(100-L),)
+
+lch_to_rgb((L,max(C-L,0),230)) + (a*(100-L),)

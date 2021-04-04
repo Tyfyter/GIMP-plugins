@@ -6,7 +6,7 @@ false = False
 true = True
 context = {}
 
-def enum_discolor(image, drawable, expression, alpha) :
+def enum_discolor(image, drawable, expression, alpha, unitcoords, unit) :
 	''' Converts a layer to gray scale, without modifying his type (RGB or RGBA).
 	Note that this implementation is very inefficient, since it do not make use 
 	of tiles or pixel regions. Also, it has a bug which prevents to undo the 
@@ -40,13 +40,18 @@ def enum_discolor(image, drawable, expression, alpha) :
 					xyz = rgb_to_xyz(pixel)
 					LAB = xyz_to_lab(xyz)
 					LCh = lab_to_lch(LAB)
+					rgbdiv = (1.0,255.0)[unit]
+					percdiv = (1.0,100.0)[unit]
+					anglediv = (1.0,360.0)[unit]
+					xdiv = (1.0,layer.width*1.0)[unitcoords]
+					ydiv = (1.0,layer.height*1.0)[unitcoords]
 					global context
-					context = {'x': x, 'y': y, 'r': pixel[0], 'g': pixel[1], 'b': pixel[2], 'a': pixel[3], 'X': xyz[0], 'Y': xyz[1], 'Z': xyz[2] , 'L': LAB[0], 'A': LAB[1], 'B': LAB[2], 'C': LCh[1], 'h': LCh[2], 'width': layer.width, 'height': layer.height}
+					context = {'x': x/xdiv, 'y': y/ydiv, 'r': pixel[0]/rgbdiv, 'g': pixel[1]/rgbdiv, 'b': pixel[2]/rgbdiv, 'a': pixel[3]/rgbdiv, 'X': xyz[0]/percdiv, 'Y': xyz[1]/percdiv, 'Z': xyz[2]/percdiv , 'L': LAB[0]/percdiv, 'A': LAB[1], 'B': LAB[2], 'C': LCh[1]/percdiv, 'h': LCh[2]/anglediv, 'width': layer.width, 'height': layer.height}
 					if(alpha):
-						newColor = clamp_rgb(eval(expression, None, context))
+						newColor = clamp_rgb(eval(expression, None, context), unit)
 						layer.set_pixel(x,y, truncate_float4(newColor))
 					else:
-						newColor = clamp_rgb(eval(expression, None, context)) + pixel[3:]
+						newColor = clamp_rgb(eval(expression, None, context), unit) + pixel[3:]
 						layer.set_pixel(x,y, truncate_float4(newColor))
 		
 		# Update the layer.
@@ -200,13 +205,13 @@ def truncate_float4(rgba) :
 		return (int(rgba[0]),int(rgba[1]),int(rgba[2]),int(rgba[3]))
 	return (int(rgba[0]),int(rgba[1]),int(rgba[2]))
 	
-def clamp_rgb(rgba) :
+def clamp_rgb(rgba, unit) :
 	if(len(rgba) > 3) :
-		return (clamp_rgb1(rgba[0]),clamp_rgb1(rgba[1]),clamp_rgb1(rgba[2]),clamp_rgb1(rgba[3]))
-	return (clamp_rgb1(rgba[0]),clamp_rgb1(rgba[1]),clamp_rgb1(rgba[2]))
+		return (clamp_rgb1(rgba[0],unit),clamp_rgb1(rgba[1],unit),clamp_rgb1(rgba[2],unit),clamp_rgb1(rgba[3],unit))
+	return (clamp_rgb1(rgba[0],unit),clamp_rgb1(rgba[1],unit),clamp_rgb1(rgba[2],unit))
 	
-def clamp_rgb1(v) :
-	return clamp(v,0,255)
+def clamp_rgb1(v, unit) :
+	return clamp(v*((1,255)[unit]),0,255)
 
 def clamp(v,_min,_max) :
 	return max(_min,min(v,_max)) 
@@ -239,7 +244,9 @@ register(
 	(PF_IMAGE, "img", "Input Image", None),
 	(PF_DRAWABLE, "drawable", "Input Layer", None),
 	(PF_STRING, "expression", "Expression", ""),
-	(PF_BOOL, "alpha", "Include alpha", false)
+	(PF_BOOL, "alpha", "Include alpha", false),
+	(PF_BOOL, "unitcoords", "Unit range coords", false),
+	(PF_BOOL, "unit", "Unit range values", false)
 	],
 	[],
 	enum_discolor)
@@ -257,7 +264,9 @@ register(
 	(PF_IMAGE, "img", "Input Image", None),
 	(PF_DRAWABLE, "drawable", "Input Layer", None),
 	(PF_STRING, "expression", "Expression", ""),
-	(PF_BOOL, "alpha", "Include alpha", false)
+	(PF_BOOL, "alpha", "Include alpha", false),
+	(PF_BOOL, "unitcoords", "Unit range coords", false),
+	(PF_BOOL, "unit", "Unit range values", false)
 	],
 	[],
 	enum_discolor)
