@@ -24,7 +24,7 @@ def get_outness_x(value, frames, size, offset) :
 def get_outness_y(value, frames, size, offset) : 
 	frame_coords = array_mod((value - offset), size)
 	if (frame_coords[0] >= size[frame_coords[1]]) :
-		if ((frame_coords[2] - 1) % frames == 0) :
+		if (frame_coords[2] % frames == 0) :
 			return 2
 		return 1
 	return 0
